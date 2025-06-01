@@ -1,0 +1,59 @@
+import { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Input } from "@/components/ui/input"; import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const states = [ { key: "focus", label: "专注冲刺", message: "当前状态适合进行高强度任务，比如学习、深度写作、编程等。" }, { key: "normal", label: "普通状态", message: "你可以安排中等强度的任务，如整理资料、浏览复习、轻松记录。" }, { key: "tired", label: "疲惫/分心", message: "建议休息或进行低强度任务，如听音乐、看视频、散步、喝水。" } ];
+
+export default function TaskManager() { const [tasks, setTasks] = useState([]); const [input, setInput] = useState(""); const [energy, setEnergy] = useState("normal");
+
+const addTask = () => { if (!input.trim()) return; setTasks([...tasks, { text: input, done: false }]); setInput(""); };
+
+const toggleTask = (index) => { const newTasks = [...tasks]; newTasks[index].done = !newTasks[index].done; setTasks(newTasks); };
+
+const currentState = states.find((s) => s.key === energy);
+
+return ( <div className="max-w-xl mx-auto p-4 space-y-4"> <h1 className="text-2xl font-bold">灵活任务调度 · 状态反馈助手</h1>
+
+<Tabs value={energy} onValueChange={setEnergy} className="w-full">
+    <TabsList className="grid grid-cols-3">
+      {states.map((s) => (
+        <TabsTrigger key={s.key} value={s.key}>
+          {s.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
+  </Tabs>
+
+  <Card>
+    <CardContent className="p-4">
+      <p className="text-sm text-muted-foreground">状态反馈</p>
+      <p className="mt-2 font-semibold">{currentState.message}</p>
+    </CardContent>
+  </Card>
+
+  <div className="flex gap-2">
+    <Input
+      placeholder="添加新任务，例如：复习单词"
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+    />
+    <Button onClick={addTask}>添加</Button>
+  </div>
+
+  <div className="space-y-2">
+    {tasks.length === 0 && <p className="text-muted-foreground">暂无任务</p>}
+    {tasks.map((task, idx) => (
+      <div
+        key={idx}
+        className="flex items-center gap-2 p-2 rounded-lg border cursor-pointer hover:bg-muted"
+        onClick={() => toggleTask(idx)}
+      >
+        <input type="checkbox" checked={task.done} readOnly />
+        <span className={task.done ? "line-through text-muted-foreground" : ""}>
+          {task.text}
+        </span>
+      </div>
+    ))}
+  </div>
+</div>
+
+); }
+
