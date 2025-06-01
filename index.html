@@ -1,179 +1,238 @@
-<!DOCTYPE html><html lang="zh">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>专注任务中心</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注意力中心</title>
   <style>
     body {
-      font-family: "Helvetica Neue", sans-serif;
-      background: #f0f4f8;
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    header {
-      background: #4a90e2;
-      color: white;
-      width: 100%;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-    }
-    .section {
-      background: white;
-      width: 90%;
-      max-width: 600px;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .task-list li {
-      list-style: none;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-    .highlight {
-      background: #ffefc2;
-    }
-    button {
-      padding: 10px 15px;
-      margin-top: 10px;
-      border: none;
-      background: #4a90e2;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #points {
-      font-size: 24px;
-      color: #e67e22;
-    }
-    .achievement {
-      display: inline-block;
-      margin: 5px;
-      font-size: 24px;
-      opacity: 0.3;
-    }
-    .achievement.unlocked {
-      opacity: 1;
-      animation: pop 0.5s ease-in-out;
-    }
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem;
+    }h1 {
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+}
+
+.mode-switcher, .task-list, .focus-zone, .music-player, .quote-box, .timer, .rewards, .progress, .mood {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.mode-btns button, .mood button {
+  margin: 0.3rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 1rem;
+  background: #ffffff33;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mode-btns button.active {
+  background: #ffffffaa;
+  color: #2a5298;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #ffffff22;
+  margin: 0.5rem 0;
+  padding: 0.6rem;
+  border-radius: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+input[type="text"] {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  width: 70%;
+}
+
+button.remove {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.quote {
+  font-style: italic;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  background: #ffffff33;
+  border-radius: 1rem;
+  overflow: hidden;
+  height: 1.2rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: limegreen;
+  width: 0%;
+  transition: width 0.3s;
+}
+
   </style>
 </head>
 <body>
-  <header>🧭 我的专注任务中心</header>  <div class="section">
-    <h3>✅ 当前任务</h3>
-    <p id="currentTask">（尚未选择）</p>
-    <button onclick="selectRandomTask()">从任务中随机选择一个</button>
-  </div>  <div class="section">
-    <h3>📋 添加任务</h3>
-    <input id="taskInput" type="text" placeholder="输入任务后回车">
-    <ul id="taskList" class="task-list"></ul>
-  </div>  <div class="section">
-    <h3>⏱️ 专注倒计时</h3>
-    <p id="timer">25:00</p>
-    <button onclick="startTimer()">开始</button>
-    <button onclick="resetTimer()">重置</button>
-  </div>  <div class="section">
-    <h3>🏆 成就点数：<span id="points">0</span></h3>
-    <div id="achievements">
-      <span class="achievement" id="ach1">🥇</span>
-      <span class="achievement" id="ach2">🥈</span>
-      <span class="achievement" id="ach3">🥉</span>
+  <h1>🧠 注意力中心</h1>  <div class="mode-switcher">
+    <h2>当前状态：<span id="mode">专注</span></h2>
+    <div class="mode-btns">
+      <button onclick="setMode('专注')">专注</button>
+      <button onclick="setMode('休息')">休息</button>
+      <button onclick="setMode('放空')">放空</button>
+      <button onclick="setMode('冥想')">冥想</button>
     </div>
+  </div>  <div class="timer">
+    <h2>⏳ 倒计时</h2>
+    <div>
+      <span id="timer">25:00</span>
+      <button onclick="startTimer()">开始</button>
+      <button onclick="resetTimer()">重置</button>
+    </div>
+  </div>  <div class="task-list">
+    <h2>📋 今日任务</h2>
+    <input type="text" id="taskInput" placeholder="输入任务后按回车" onkeypress="handleTaskInput(event)">
+    <ul id="taskUl"></ul>
+  </div>  <div class="progress">
+    <h2>📈 完成进度</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>  <div class="rewards">
+    <h2>🏆 奖励点数</h2>
+    <div>当前点数：<span id="points">0</span></div>
+  </div>  <div class="mood">
+    <h2>😊 记录心情</h2>
+    <div>
+      <button onclick="recordMood('😃')">😃</button>
+      <button onclick="recordMood('🙂')">🙂</button>
+      <button onclick="recordMood('😐')">😐</button>
+      <button onclick="recordMood('😞')">😞</button>
+    </div>
+    <p>最近心情：<span id="lastMood">未记录</span></p>
+  </div>  <div class="music-player">
+    <h2>🎵 放松音乐</h2>
+    <audio controls loop>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      你的浏览器不支持音频播放。
+    </audio>
+  </div>  <div class="quote-box">
+    <h2>🌟 状态提示</h2>
+    <div class="quote" id="quote"></div>
   </div>  <script>
-    let taskList = [];
-    let points = 0;
-    let currentTask = null;
-    let timer;
-    let timeLeft = 1500;
+    const quotes = {
+      "专注": ["保持专注，离完成只差一点点。", "你在创造属于自己的奇迹。", "世界很吵，但你可以很安静地厉害着。"],
+      "休息": ["休息不是逃避，而是为了积蓄能量。", "放松一下吧，你已经够努力了。"],
+      "放空": ["允许自己什么都不想，是一种平静的力量。"],
+      "冥想": ["闭上眼，深呼吸，让世界慢下来。"]
+    }
 
-    document.getElementById("taskInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
+    function setMode(mode) {
+      document.getElementById('mode').innerText = mode;
+      document.querySelectorAll('.mode-btns button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText === mode) btn.classList.add('active');
+      });
+      const msgs = quotes[mode] || ["继续加油"];
+      document.getElementById('quote').innerText = msgs[Math.floor(Math.random() * msgs.length)];
+    }
+
+    function handleTaskInput(e) {
+      if (e.key === 'Enter') {
         const val = e.target.value.trim();
         if (val) {
-          taskList.push({ text: val, done: false });
-          e.target.value = "";
-          renderTasks();
+          const li = document.createElement('li');
+          li.innerHTML = `${val} <button class='remove' onclick='removeTask(this)'>✕</button>`;
+          document.getElementById('taskUl').appendChild(li);
+          e.target.value = '';
+          updateProgress();
         }
       }
-    });
-
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-      taskList.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.innerText = task.text;
-        li.className = index === currentTask ? "highlight" : "";
-        li.onclick = () => toggleTask(index);
-        list.appendChild(li);
-      });
     }
 
-    function toggleTask(index) {
-      if (!taskList[index].done) {
-        taskList[index].done = true;
-        points++;
-        updatePoints();
-        checkAchievements();
-        renderTasks();
-      }
+    function removeTask(btn) {
+      btn.parentElement.remove();
+      addPoints(1);
+      updateProgress();
     }
 
-    function updatePoints() {
-      document.getElementById("points").innerText = points;
+    function updateProgress() {
+      const total = document.querySelectorAll('#taskUl li').length + completedTasks;
+      const done = completedTasks;
+      const percent = total ? Math.floor((done / total) * 100) : 0;
+      document.getElementById('progressFill').style.width = percent + '%';
     }
 
-    function checkAchievements() {
-      if (points >= 1) document.getElementById("ach1").classList.add("unlocked");
-      if (points >= 3) document.getElementById("ach2").classList.add("unlocked");
-      if (points >= 5) document.getElementById("ach3").classList.add("unlocked");
+    let completedTasks = 0;
+    let points = 0;
+
+    function addPoints(n) {
+      points += n;
+      completedTasks++;
+      document.getElementById('points').innerText = points;
+      updateProgress();
     }
 
-    function selectRandomTask() {
-      const notDone = taskList.map((t, i) => !t.done ? i : -1).filter(i => i !== -1);
-      if (notDone.length === 0) {
-        alert("没有未完成的任务了！");
-        return;
-      }
-      const randomIndex = notDone[Math.floor(Math.random() * notDone.length)];
-      currentTask = randomIndex;
-      document.getElementById("currentTask").innerText = taskList[currentTask].text;
-      renderTasks();
+    function recordMood(emoji) {
+      document.getElementById('lastMood').innerText = emoji;
+    }
+
+    let timer;
+    let seconds = 1500;
+
+    function updateTimer() {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      document.getElementById('timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
     function startTimer() {
       clearInterval(timer);
       timer = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
-          updateTimerDisplay();
+        if (seconds > 0) {
+          seconds--;
+          updateTimer();
         } else {
           clearInterval(timer);
-          alert("专注时间结束，休息一下吧！");
+          alert("倒计时结束！");
         }
       }, 1000);
     }
 
     function resetTimer() {
       clearInterval(timer);
-      timeLeft = 1500;
-      updateTimerDisplay();
+      seconds = 1500;
+      updateTimer();
     }
 
-    function updateTimerDisplay() {
-      const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-      const seconds = String(timeLeft % 60).padStart(2, '0');
-      document.getElementById("timer").innerText = `${minutes}:${seconds}`;
-    }
+    setMode('专注');
+    updateTimer();
   </script></body>
 </html>
