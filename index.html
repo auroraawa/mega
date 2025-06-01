@@ -1,59 +1,92 @@
-import { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Input } from "@/components/ui/input"; import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>灵活任务调度 · 状态反馈助手</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .state-button { margin-right: 8px; padding: 6px 12px; }
+    .active { font-weight: bold; color: green; }
+    .task-item { cursor: pointer; margin: 5px 0; }
+    .done { text-decoration: line-through; color: gray; }
+  </style>
+</head>
+<body>
+  <h2>灵活任务调度 · 状态反馈助手</h2>
 
-const states = [ { key: "focus", label: "专注冲刺", message: "当前状态适合进行高强度任务，比如学习、深度写作、编程等。" }, { key: "normal", label: "普通状态", message: "你可以安排中等强度的任务，如整理资料、浏览复习、轻松记录。" }, { key: "tired", label: "疲惫/分心", message: "建议休息或进行低强度任务，如听音乐、看视频、散步、喝水。" } ];
+  <div id="state-buttons"></div>
+  <p id="state-message"></p>
 
-export default function TaskManager() { const [tasks, setTasks] = useState([]); const [input, setInput] = useState(""); const [energy, setEnergy] = useState("normal");
+  <form id="task-form">
+    <input type="text" id="task-input" placeholder="输入任务..." />
+    <button type="submit">添加</button>
+  </form>
 
-const addTask = () => { if (!input.trim()) return; setTasks([...tasks, { text: input, done: false }]); setInput(""); };
+  <ul id="task-list"></ul>
 
-const toggleTask = (index) => { const newTasks = [...tasks]; newTasks[index].done = !newTasks[index].done; setTasks(newTasks); };
+  <script>
+    const states = [
+      { key: "focus", label: "专注中", message: "当前状态能维持专注，请保持。" },
+      { key: "normal", label: "一般", message: "可以安排轻量任务。" },
+      { key: "tired", label: "疲惫", message: "建议适当休息，或进行放松任务。" }
+    ];
 
-const currentState = states.find((s) => s.key === energy);
+    let currentState = "normal";
+    let tasks = [];
 
-return ( <div className="max-w-xl mx-auto p-4 space-y-4"> <h1 className="text-2xl font-bold">灵活任务调度 · 状态反馈助手</h1>
+    const stateButtonsDiv = document.getElementById("state-buttons");
+    const stateMessageP = document.getElementById("state-message");
+    const taskForm = document.getElementById("task-form");
+    const taskInput = document.getElementById("task-input");
+    const taskList = document.getElementById("task-list");
 
-<Tabs value={energy} onValueChange={setEnergy} className="w-full">
-    <TabsList className="grid grid-cols-3">
-      {states.map((s) => (
-        <TabsTrigger key={s.key} value={s.key}>
-          {s.label}
-        </TabsTrigger>
-      ))}
-    </TabsList>
-  </Tabs>
+    function renderStates() {
+      stateButtonsDiv.innerHTML = '';
+      states.forEach(state => {
+        const btn = document.createElement("button");
+        btn.textContent = state.label;
+        btn.className = "state-button" + (currentState === state.key ? " active" : "");
+        btn.onclick = () => {
+          currentState = state.key;
+          renderStates();
+          updateMessage();
+        };
+        stateButtonsDiv.appendChild(btn);
+      });
+    }
 
-  <Card>
-    <CardContent className="p-4">
-      <p className="text-sm text-muted-foreground">状态反馈</p>
-      <p className="mt-2 font-semibold">{currentState.message}</p>
-    </CardContent>
-  </Card>
+    function updateMessage() {
+      const msg = states.find(s => s.key === currentState)?.message || '';
+      stateMessageP.textContent = msg;
+    }
 
-  <div className="flex gap-2">
-    <Input
-      placeholder="添加新任务，例如：复习单词"
-      value={input}
-      onChange={(e) => setInput(e.target.value)}
-    />
-    <Button onClick={addTask}>添加</Button>
-  </div>
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach((task, idx) => {
+        const li = document.createElement("li");
+        li.textContent = task.text;
+        li.className = "task-item" + (task.done ? " done" : "");
+        li.onclick = () => {
+          task.done = !task.done;
+          renderTasks();
+        };
+        taskList.appendChild(li);
+      });
+    }
 
-  <div className="space-y-2">
-    {tasks.length === 0 && <p className="text-muted-foreground">暂无任务</p>}
-    {tasks.map((task, idx) => (
-      <div
-        key={idx}
-        className="flex items-center gap-2 p-2 rounded-lg border cursor-pointer hover:bg-muted"
-        onClick={() => toggleTask(idx)}
-      >
-        <input type="checkbox" checked={task.done} readOnly />
-        <span className={task.done ? "line-through text-muted-foreground" : ""}>
-          {task.text}
-        </span>
-      </div>
-    ))}
-  </div>
-</div>
+    taskForm.onsubmit = (e) => {
+      e.preventDefault();
+      const text = taskInput.value.trim();
+      if (text) {
+        tasks.push({ text, done: false });
+        taskInput.value = '';
+        renderTasks();
+      }
+    };
 
-); }
-
+    renderStates();
+    updateMessage();
+  </script>
+</body>
+</html>
